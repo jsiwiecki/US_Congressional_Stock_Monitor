@@ -14,9 +14,12 @@ Implemented by an AWS Lambda function which makes requests to this API regularly
 
 Function is located in: `aws_lambda/FetchHouseStockWatcher`
 
-### TBD:
-Data Storage
+### Data Storage
+1. S3 & Snowflake
+Results of data fetching is saved in S3 in JSON format. Snowflake is used as data warehouse. It's integrated with S3 and process data from External Table to technical tables to eventually store data in traditional tables. Plus streams help to track changes in the data.
 
+
+### TBD:
 Data Processing
 
 Data Automation
