@@ -7,7 +7,12 @@ This is a data-driven application that retrieves, stores, analyzes, and visualiz
 ## Main Components:
 
 ### 1. Data Acquisition 
-Uses the U.S. Congress Stock Transactions API to retrieve the data of all transactions. Implemented by an AWS Lambda function which makes requests to this API regularly.
+
+#### FetchHouseStockWatcher
+Uses the U.S. Congress Stock Transactions API to retrieve the data of all transactions. 
+Implemented by an AWS Lambda function which makes requests to this API regularly.
+
+Function is located in: `aws_lambda/FetchHouseStockWatcher`
 
 ### TBD:
 Data Storage

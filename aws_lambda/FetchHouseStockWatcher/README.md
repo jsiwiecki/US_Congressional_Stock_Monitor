@@ -12,4 +12,10 @@ This function fetches aggregated data about all transactions from `https://senat
 3. Upload it to AWS Lambda. Remember to adjust Handler:
 `<NameOfScript>.<NameOfMainFunction>`
 
-4. This script for AWS Lambda needs proper permissions to be able to save file in S3
+4. Add environmental variables to AWS Lambda: 
+`S3_BUCKET_NAME`
+`STOCK_WATCHER_API_URL`
+
+5. This script for AWS Lambda needs proper permissions to be able to save file in S3
+
+6. Setup a trigger / frequence to fetch data by AWS Lambda function.
