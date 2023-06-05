@@ -18,6 +18,12 @@ CREATE TABLE IF NOT EXISTS TECH_DBO.INGEST(
     disclosure_date DATE
 );
 
+
+create sequence ID_SEQUENCE
+    start = 1
+    increment = 1;
+
+
 CREATE TABLE IF NOT EXISTS TECH_DBO.INGEST_LOG (
     id number default ID_SEQUENCE.nextval,
     ingestion_date DATE
