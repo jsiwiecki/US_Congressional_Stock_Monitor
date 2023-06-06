@@ -10,21 +10,22 @@ This project is build based on servesless architecture. Main components:
 2. Python script
 3. Snowflake (Stored Procedures, Tasks, Stages, Streams)
 
-### 1. Data Acquisition 
+#### 1. Data Acquisition 
 
-#### FetchHouseStockWatcher
+#### AWS Lambda - FetchHouseStockWatcher
 Uses the U.S. Congress Stock Transactions API to retrieve the data of all transactions. 
 Implemented by an AWS Lambda function which makes requests to this API regularly.
 
 Function is located in: `aws_lambda/FetchHouseStockWatcher`
 
-### 2. Data Storage
-1. S3 & Snowflake
+#### 2. Data Storage
+
+#### S3 & Snowflake
 Results of data fetching is saved in S3 in JSON format. Snowflake is used as data warehouse. It's integrated with S3 and process data from External Table to technical tables to eventually store data in traditional tables. Plus streams help to track changes in the data.
 
 
-### TBD:
-Data Processing
+#### TBD:
+#### Data Processing
 
 Data Automation
 
