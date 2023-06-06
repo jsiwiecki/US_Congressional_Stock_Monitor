@@ -21,8 +21,7 @@ Function is located in: `aws_lambda/FetchHouseStockWatcher`
 #### 2. Data Storage
 
 #### S3 & Snowflake
-Results of data fetching is saved in S3 in JSON format. Snowflake is used as data warehouse. It's integrated with S3 and process data from External Table to technical tables to eventually store data in traditional tables. Plus streams help to track changes in the data.
-
+Results of data fetching is saved in S3 in JSON format. Snowflake is used as data warehouse. It's integrated with S3 and process data from External Table to STG_DWH tables to eventually store data in traditional tables. 
 
 #### TBD:
 #### Data Processing
