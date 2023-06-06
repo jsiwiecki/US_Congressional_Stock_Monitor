@@ -1,6 +1,12 @@
 CREATE SCHEMA IF NOT EXISTS TECH_DBO;
 
-CREATE TABLE IF NOT EXISTS TECH_DBO.INGEST(
+create sequence INGEST_ID_SEQUENCE
+    start = 1
+    increment = 1;
+
+
+CREATE OR REPLACE TABLE TECH_DBO.INGEST(
+    id number default INGEST_ID_SEQUENCE.nextval,
     transaction_date DATE,
     owner VARCHAR,
     ticker VARCHAR,
