@@ -56,10 +56,8 @@ class S3TransformationApp:
         :param df: The input DataFrame.
         :return: The transformed DataFrame.
         """
-        return df.withColumn(
-            "industries",
-            when(col("industry").isNull(), "NA").otherwise(col("industry")),
-        )
+        for column in dataframe.columns:
+            dataframe = dataframe.withColumn(column, when(col(column) == '', 'NA').otherwise(col(column)))
 
     def write_data_to_s3(self, df: DataFrame, filepath: str) -> None:
         """
