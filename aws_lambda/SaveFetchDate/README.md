@@ -1,4 +1,4 @@
-# FetchHouseStockWatcher
+# SaveFetchDate
 
 This function fetches aggregated data about all transactions from `https://senate-stock-watcher-data.s3-us-west-2.amazonaws.com`
 

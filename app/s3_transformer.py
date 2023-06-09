@@ -74,7 +74,7 @@ class S3TransformationApp:
         Execute the S3TransformationApp by reading data from S3,
         transforming the DataFrame, and writing the results back to S3.
         """
-        input_path = "data/2023-06-04_results.json"
+        input_path = "raw/2023-06-04_results.json"
         output_path = "transformed/"
 
         df = self.read_data_from_s3(input_path)
