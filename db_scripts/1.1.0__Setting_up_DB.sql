@@ -1,5 +1,9 @@
-use database STOCK_MONITOR;
-use schema CORE_DWH;
+create database if not EXISTS THORGAL;
+
+CREATE SCHEMA IF NOT EXISTS CORE_DWH;
+CREATE SCHEMA IF NOT EXISTS STG_DWH;
+
+use schema STG_DWH;
 
 // S3 Integration
 CREATE OR REPLACE STORAGE INTEGRATION aws_s3_integration
