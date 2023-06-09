@@ -20,14 +20,14 @@ ENV PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 
 RUN pip3 install pyspark==3.1.2
 
-COPY requirements.txt opt/spark/requirements.txt
+COPY ../requirements.txt opt/spark/requirements.txt
 RUN pip3 install -r opt/spark/requirements.txt
 
 ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
 
-COPY s3_transformer.py /opt/spark/scripts/s3_transformer.py
+COPY ../app/s3_transformer.py /opt/spark/scripts/s3_transformer.py
 
 WORKDIR /opt/spark/scripts
 
