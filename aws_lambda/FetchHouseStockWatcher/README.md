@@ -4,7 +4,7 @@ This function fetches aggregated data about all transactions from `https://senat
 
 ## Installation
 0. Install required libraries
-`pip install -r requirements.txt`
+`pip install --target=./lib -r requirements.txt`
 
 1. Zip needed libraries
 `zip -r ../deployment_package.zip .`
