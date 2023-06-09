@@ -1,5 +1,5 @@
 boto3==1.23.10
-tox==4.0.0a9
+tox
 mypy==0.971
 #pyspark-stubs==3.0.0.post3
 types-requests

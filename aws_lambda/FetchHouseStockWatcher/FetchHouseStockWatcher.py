@@ -105,7 +105,7 @@ def lambda_handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, 
                 "statusCode": 500,
                 "body": "Environment variable S3_BUCKET_NAME not set"
             }
-        s3_key = f"data/{senate_stock_watcher.file_name}"
+        s3_key = f"raw/{senate_stock_watcher.file_name}"
         senate_stock_watcher.upload_to_s3(bucket_name, s3_key)
 
     return {

@@ -22,4 +22,4 @@ STRIP_OUTER_ARRAY = TRUE;
 create or replace stage s3_transaction_data
 storage_integration = aws_s3_integration
 file_format = my_json_format
-url = 's3://<NAME_OF_YOUR_BUCKET>/data';
+url = 's3://<NAME_OF_YOUR_BUCKET>/raw';
