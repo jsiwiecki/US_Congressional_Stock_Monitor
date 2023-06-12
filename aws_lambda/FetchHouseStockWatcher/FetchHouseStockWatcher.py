@@ -110,8 +110,10 @@ def lambda_handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, 
 
         s3_key = f"raw/{senate_stock_watcher.file_name}"
         senate_stock_watcher.upload_to_s3(bucket_name, s3_key)
+        date = senate_stock_watcher.current_data
 
     return {
         "statusCode": 200,
-        "body": "Data fetched from API and saved to S3"
+        "body": "Data fetched from API and saved to S3",
+        "date": date
     }
