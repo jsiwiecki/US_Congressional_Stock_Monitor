@@ -3,7 +3,10 @@
 This function fetches aggregated data about all transactions from `https://senate-stock-watcher-data.s3-us-west-2.amazonaws.com`
 
 ## Installation
-1. Zip needed libraries
+0. Install required libraries
+`pip install --target=./lib -r requirements.txt`
+
+1. Zip needed libraries (from folder with libraries)
 `zip -r ../deployment_package.zip .`
 
 2. Zip zipped libs with function itself

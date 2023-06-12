@@ -1,0 +1,5 @@
+snowflake-sqlalchemy==1.3.4
+sqlalchemy==1.4.0
+datetime
+cryptography==3.4.8 
+bcrypt==3.2.2
