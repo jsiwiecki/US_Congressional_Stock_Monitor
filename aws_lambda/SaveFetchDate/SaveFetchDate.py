@@ -65,3 +65,9 @@ def lambda_handler(event, context):
     snowflake.insert_fetch_history(current_date)
 
     snowflake.close()
+
+    return {
+        "statusCode": 200,
+        "body": "Table updated with current fetching date"
+    }
+    
