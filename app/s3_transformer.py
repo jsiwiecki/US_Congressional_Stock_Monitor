@@ -1,8 +1,9 @@
 import os
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import unix_timestamp, from_unixtime, col, when
 from datetime import datetime
-from schema import DATA_SCHEMA
+from schema import INPUT_SCHEMA
+from constraints import DATES_TO_TRANSFORM
 
 class S3TransformationApp:
     """
@@ -60,17 +61,47 @@ class S3TransformationApp:
         s3_input_path = f"s3a://{self.s3_bucket_name}/{filepath}"
         return self.spark.read.json(s3_input_path, schema=schema)
 
-    def transform_data(self, df: DataFrame) -> DataFrame:
+    def clean_nulls(self, df: DataFrame) -> DataFrame:
         """
         Perform a transformation on the given DataFrame.
         
         :param df: The input DataFrame.
         :return: The transformed DataFrame.
         """
+        transformed_df = df.fillna(
+            {
+                'amount':'Unknown', 
+                'asset_description': 'Unknown', 
+                'asset_type':'Unknown',
+                'comment': 'Unknown',
+                'industry': 'Unknown',
+                'owner': 'Unknown',
+                'party': 'Unknown',
+                'ptr_link': 'Unknown',
+                'sector': "Unknown",
+                'senator': 'Unknown',
+                'state': 'Unknown',
+                'ticker': 'Unknown',
+                'type': 'Unknown'
+            }
+        )
+
+        return transformed_df
+
+    def transform_date_format(self,  columns, df: DataFrame) -> DataFrame:
+        """
+        TO DO
+        """            
+        input_date_format = "MM/dd/yyyy"
+        output_date_format = "yyyy-MM-dd"
+        
         transformed_df = df
 
-        for column in df.columns:
-            transformed_df = df.withColumn(column, when(col(column) == '', 'NA').otherwise(col(column)))
+        for column_name in columns:
+            transformed_df = transformed_df.withColumn(
+                column_name, 
+                from_unixtime(unix_timestamp(df[column_name], input_date_format), output_date_format)
+            )
 
         return transformed_df
 
@@ -92,9 +123,10 @@ class S3TransformationApp:
 
         raw_reading_path = self.results_filename_path_creator("raw")
 
-        df = self.read_data_from_s3(DATA_SCHEMA, raw_reading_path)
+        df = self.read_data_from_s3(INPUT_SCHEMA, raw_reading_path)
 
-        transformed_df = self.transform_data(df)
+        transformed_df = self.clean_nulls(df)
+        transformed_df = self.transform_date_format(DATES_TO_TRANSFORM, transformed_df)
 
         self.write_data_to_s3(transformed_df, "data")
 

@@ -1,6 +1,6 @@
 from pyspark.sql.types import StructField, StructType, StringType
 
-DATA_SCHEMA = StructType([
+INPUT_SCHEMA = StructType([
     StructField("amount", StringType(), True),
     StructField("asset_description", StringType(), True),
     StructField("asset_type", StringType(), True),
