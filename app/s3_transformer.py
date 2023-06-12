@@ -2,6 +2,7 @@ import os
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col, when
 from datetime import datetime
+from schema import DATA_SCHEMA
 
 class S3TransformationApp:
     """
@@ -49,8 +50,7 @@ class S3TransformationApp:
 
         return filepath
 
-
-    def read_data_from_s3(self, filepath: str) -> DataFrame:
+    def read_data_from_s3(self, schema, filepath: str) -> DataFrame:
         """
         Read JSON data from the given S3 path.
         
@@ -58,7 +58,7 @@ class S3TransformationApp:
         :return: A DataFrame containing the JSON data.
         """
         s3_input_path = f"s3a://{self.s3_bucket_name}/{filepath}"
-        return self.spark.read.json(s3_input_path)
+        return self.spark.read.json(s3_input_path, schema=schema)
 
     def transform_data(self, df: DataFrame) -> DataFrame:
         """
@@ -92,7 +92,7 @@ class S3TransformationApp:
 
         raw_reading_path = self.results_filename_path_creator("raw")
 
-        df = self.read_data_from_s3(raw_reading_path)
+        df = self.read_data_from_s3(DATA_SCHEMA, raw_reading_path)
 
         transformed_df = self.transform_data(df)
 

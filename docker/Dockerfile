@@ -27,8 +27,8 @@ ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
 
-COPY ../app/s3_transformer.py /opt/spark/scripts/s3_transformer.py
+COPY ../app/. /opt/spark/app/.
 
-WORKDIR /opt/spark/scripts
+WORKDIR /opt/spark/app
 
 ENTRYPOINT ["spark-submit", "--packages", "org.apache.hadoop:hadoop-aws:3.2.0,com.amazonaws:aws-java-sdk-bundle:1.11.900", "s3_transformer.py"]
