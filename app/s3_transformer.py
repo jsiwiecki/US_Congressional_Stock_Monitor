@@ -1,6 +1,7 @@
 import os
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col, when
+from datetime import datetime
 
 class S3TransformationApp:
     """
@@ -38,6 +39,16 @@ class S3TransformationApp:
             .getOrCreate()
 
         return spark
+    
+    def results_filename_path_creator(self, folder):
+        """
+        TO DO: date should be received from Lambda
+        """
+        date = datetime.now().strftime("%Y-%m-%d")
+        filepath = f"{folder}/{date}_results.json"
+
+        return filepath
+
 
     def read_data_from_s3(self, filepath: str) -> DataFrame:
         """
@@ -56,8 +67,12 @@ class S3TransformationApp:
         :param df: The input DataFrame.
         :return: The transformed DataFrame.
         """
-        for column in dataframe.columns:
-            dataframe = dataframe.withColumn(column, when(col(column) == '', 'NA').otherwise(col(column)))
+        transformed_df = df
+
+        for column in df.columns:
+            transformed_df = df.withColumn(column, when(col(column) == '', 'NA').otherwise(col(column)))
+
+        return transformed_df
 
     def write_data_to_s3(self, df: DataFrame, filepath: str) -> None:
         """
@@ -66,7 +81,7 @@ class S3TransformationApp:
         :param df: The DataFrame to be written to S3.
         :param filepath: The destination path within the specified S3 bucket.
         """
-        s3_output_path = f"s3a://{self.s3_bucket_name}/{filepath}"
+        s3_output_path = f"s3a://{self.s3_bucket_name}/{filepath}/"
         df.write.json(s3_output_path, mode="overwrite")
 
     def run(self) -> None:
@@ -74,14 +89,14 @@ class S3TransformationApp:
         Execute the S3TransformationApp by reading data from S3,
         transforming the DataFrame, and writing the results back to S3.
         """
-        input_path = "raw/2023-06-04_results.json"
-        output_path = "transformed/"
 
-        df = self.read_data_from_s3(input_path)
+        raw_reading_path = self.results_filename_path_creator("raw")
+
+        df = self.read_data_from_s3(raw_reading_path)
 
         transformed_df = self.transform_data(df)
 
-        self.write_data_to_s3(transformed_df, output_path)
+        self.write_data_to_s3(transformed_df, "data")
 
         self.spark.stop()
 
