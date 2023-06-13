@@ -1,9 +1,14 @@
 import os
+import json
+import boto3
+from datetime import datetime
+from botocore.exceptions import ClientError
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import unix_timestamp, from_unixtime, col, when, expr
-from datetime import datetime
+
 from schema import INPUT_SCHEMA
 from constraints import DATES_TO_TRANSFORM, NULL_VAL_MAPPINGS
+
 
 
 class S3TransformationApp:
@@ -24,6 +29,7 @@ class S3TransformationApp:
         self.secret_key = secret_key
         self.s3_bucket_name = s3_bucket_name
         self.spark = self.setup_spark_session()
+
 
     def setup_spark_session(self) -> SparkSession:
         """
@@ -127,13 +133,44 @@ class S3TransformationApp:
 
         self.spark.stop()
 
+def get_secrets():
+
+    secret_name = "snowflake_access"
+    region_name = "eu-central-1"
+
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        raise e
+
+    # Decrypts secret using the associated KMS key.
+    secret = get_secret_value_response['SecretString']
+    secret_dict = json.loads(secret)
+
+    os.environ["AWS_ACCESS_KEY_ID"] = secret_dict["AWS_ACCESS_KEY_ID"]
+    os.environ["AWS_SECRET_ACCESS_KEY"] = secret_dict["AWS_SECRET_ACCESS_KEY"]
+    os.environ["S3_BUCKET_NAME"] = secret_dict["S3_BUCKET_NAME"]
+
+
 if __name__ == "__main__":
     """
     Initialize and run the S3TransformationApp with AWS credentials and an S3 bucket name.
     """
+
+    get_secrets()
+
     access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
     secret_key = os.environ["AWS_SECRET_ACCESS_KEY"]
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
 
     app = S3TransformationApp(access_key_id, secret_key, s3_bucket_name)
+
     app.run()
