@@ -74,9 +74,8 @@ class S3TransformationApp:
         for column in transformed_df.columns:
             transformed_df = transformed_df.withColumn(column, when(col(column) == 'N/A', 'Unknown').otherwise(col(column))) \
                                             .withColumn(column, when(col(column) == '--', '').otherwise(col(column))) \
-                                            .withColumn('asset_description', expr(f"REGEXP_REPLACE({column}, '<.*?>', '')"))
+                                            .withColumn('asset_description', expr(f"REGEXP_REPLACE({column}, '<.*?>', '')")) \
                                             
-
         return transformed_df
 
     def transform_date_format(self,  columns, df: DataFrame) -> DataFrame:
