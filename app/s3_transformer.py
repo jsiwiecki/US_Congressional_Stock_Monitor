@@ -1,9 +1,10 @@
 import os
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import unix_timestamp, from_unixtime, col, when
+from pyspark.sql.functions import unix_timestamp, from_unixtime, col, when, expr
 from datetime import datetime
 from schema import INPUT_SCHEMA
-from constraints import DATES_TO_TRANSFORM
+from constraints import DATES_TO_TRANSFORM, NULL_VAL_MAPPINGS
+
 
 class S3TransformationApp:
     """
@@ -63,29 +64,18 @@ class S3TransformationApp:
 
     def clean_nulls(self, df: DataFrame) -> DataFrame:
         """
-        Perform a transformation on the given DataFrame.
+        Perform a cleaning on the given DataFrame.
         
         :param df: The input DataFrame.
         :return: The transformed DataFrame.
         """
-        transformed_df = df.fillna(
-            {
-                'amount':'Unknown', 
-                'asset_description': 'Unknown', 
-                'asset_type':'Unknown',
-                'comment': 'Unknown',
-                'industry': 'Unknown',
-                'owner': 'Unknown',
-                'party': 'Unknown',
-                'ptr_link': 'Unknown',
-                'sector': "Unknown",
-                'senator': 'Unknown',
-                'state': 'Unknown',
-                'ticker': 'Unknown',
-                'type': 'Unknown'
-            }
-        )
+        transformed_df = df.fillna(NULL_VAL_MAPPINGS)
 
+        for column in transformed_df.columns:
+            transformed_df = transformed_df.withColumn(column, when(col(column) == 'N/A', 'Unknown').otherwise(col(column))) \
+                                            .withColumn(column, when(col(column) == '--', '').otherwise(col(column))) \
+                                            .withColumn('asset_description', expr(f"REGEXP_REPLACE({column}, '<.*?>', '')")) \
+                                            
         return transformed_df
 
     def transform_date_format(self,  columns, df: DataFrame) -> DataFrame:
@@ -107,6 +97,8 @@ class S3TransformationApp:
             )
 
         return transformed_df
+
+
 
     def write_data_to_s3(self, df: DataFrame, filepath: str) -> None:
         """

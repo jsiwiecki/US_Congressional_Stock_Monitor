@@ -18,8 +18,14 @@ create or replace file format my_json_format
 type='JSON'
 STRIP_OUTER_ARRAY = TRUE;
 
-// Stage for S3
-create or replace stage s3_transaction_data
+// Stage for Raw data in S3
+create or replace stage s3_raw_data
 storage_integration = aws_s3_integration
 file_format = my_json_format
 url = 's3://<NAME_OF_YOUR_BUCKET>/raw';
+
+// Stage for Transformed data in S3
+create or replace stage s3_transformed
+storage_integration = aws_s3_integration
+file_format = my_json_format
+url = 's3://<NAME_OF_YOUR_BUCKET>/data';
