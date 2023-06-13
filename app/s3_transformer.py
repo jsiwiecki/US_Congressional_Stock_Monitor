@@ -90,7 +90,10 @@ class S3TransformationApp:
 
     def transform_date_format(self,  columns, df: DataFrame) -> DataFrame:
         """
-        TO DO
+        Transforms format of a date from MM/dd/yyyy to yyyy-MM-dd
+        :param columns: List with columns to be transformed
+        :param df: The input DataFrame.        
+        :return: The transformed DataFrame.
         """            
         input_date_format = "MM/dd/yyyy"
         output_date_format = "yyyy-MM-dd"
