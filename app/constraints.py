@@ -4,7 +4,7 @@ NULL_VAL_MAPPINGS = {
     'amount':'Unknown', 
     'asset_description': 'Unknown', 
     'asset_type':'Unknown',
-    'comment': 'Unknown',
+    'comment': '',
     'industry': 'Unknown',
     'owner': 'Unknown',
     'party': 'Unknown',
