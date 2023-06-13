@@ -104,8 +104,6 @@ class S3TransformationApp:
 
         return transformed_df
 
-
-
     def write_data_to_s3(self, df: DataFrame, filepath: str) -> None:
         """
         Write the given DataFrame as a JSON file to the specified S3 path. 

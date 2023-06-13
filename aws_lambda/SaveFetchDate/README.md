@@ -25,7 +25,7 @@ Just necessary details are needed to be added there (like AWS ID etc.). Or you c
 `aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com`
 
 6. Push docker image
-`docker push 026712293897.dkr.ecr.eu-central-1.amazonaws.com/save_date`
+`docker push <aws_id>.dkr.ecr.eu-central-1.amazonaws.com/save_date`
 
 7. Create lambda function which will use a docker image
 ```bash
