@@ -1,0 +1,16 @@
+.venv/
+*pyc
+jars/
+.tox
+.mypy_cache
+aws_lambda/FetchHouseStockWatcher/lib/
+deployment_package.zip
+aws_lambda/SaveFetchDate/lib/
+docker_build_push.sh
+__pycache__
+.pytest_cache
+testing.py
+example_data
+2023-06-09_results.json
+aws_lambda/StartTaskECS/lib/
+aws_lambda/StartSnowflake/lib/

@@ -19,6 +19,4 @@ This function triggers a Spark Application in AWS ECS.
 `REGION`
 `SECRET`
 
-5. This script for AWS Lambda needs proper permissions to be able to read from Secrets Manager.
-
-6. Setup a trigger / frequence to fetch data by AWS Lambda function.
+5. This script for AWS Lambda needs proper permissions to be able to read from Secrets Manager + run tasks in ECS.
