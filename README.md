@@ -51,6 +51,8 @@ This application reads data from `RAW` location in S3. Do necessary transformati
 In AWS Lambda following functions are used:
 - FetchHouseStockWatcher
 - SaveFetchDate
+- TriggerSparkApp
+- TriggerSnowflake
 
 Each of function has its own README file with an instruction how to install them.
 
@@ -58,7 +60,7 @@ Each of function has its own README file with an instruction how to install them
 1. Run scripts from `db_scripts`
 
 ### SPARK APPLICATION
-Use Amazon Elastic Container Service to run Spark Application. A cluster will be needed which will be using a docker image from Elastic Container Registry from AWS. After setting up cluster and container create a task. Remember about proper permissions - this application needs to have an access to:
+Use Amazon Elastic Container Service with Fargate to run Spark Application. A cluster will be needed which will be using a docker image from Elastic Container Registry from AWS. After setting up cluster and container create a task. Remember about proper permissions - this application needs to have an access to:
 - AWS Secret Manager
 - S3
 
