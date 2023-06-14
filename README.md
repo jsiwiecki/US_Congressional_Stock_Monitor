@@ -5,7 +5,7 @@
 This is a data-driven application that retrieves, stores, analyzes, and visualizes U.S. Congress members' stock transactions, enabling users to see the trading habits of lawmakers and possibly uncover insightful patterns.
 
 ## Main Components:
-This project is build based on servesless architecture. Main components:
+Main components:
 1. AWS Lambda 
 2. Python script
 3. Snowflake (Stored Procedures, Tasks, Stages, Streams)
