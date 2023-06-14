@@ -123,7 +123,6 @@ class S3TransformationApp:
         raw_reading_path = self.results_filename_path_creator("raw")
 
         df = self.read_data_from_s3(INPUT_SCHEMA, raw_reading_path)
-
         transformed_df = self.clean_nulls(df)
         transformed_df = self.transform_date_format(DATES_TO_TRANSFORM, transformed_df)
 
@@ -149,25 +148,21 @@ def get_secrets():
     except ClientError as e:
         raise e
 
-    # Decrypts secret using the associated KMS key.
     secret = get_secret_value_response['SecretString']
     secret_dict = json.loads(secret)
 
-    os.environ["AWS_ACCESS_KEY_ID"] = secret_dict["AWS_ACCESS_KEY_ID"]
-    os.environ["AWS_SECRET_ACCESS_KEY"] = secret_dict["AWS_SECRET_ACCESS_KEY"]
-    os.environ["S3_BUCKET_NAME"] = secret_dict["S3_BUCKET_NAME"]
+    access_key_id = secret_dict["AWS_ACCESS_KEY_ID"]
+    secret_key = secret_dict["AWS_SECRET_ACCESS_KEY"]
+    s3_bucket_name = secret_dict["S3_BUCKET_NAME"]
+
+    return access_key_id, secret_key, s3_bucket_name
 
 
 if __name__ == "__main__":
     """
     Initialize and run the S3TransformationApp with AWS credentials and an S3 bucket name.
     """
-
-    get_secrets()
-
-    access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-    secret_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-    s3_bucket_name = os.environ["S3_BUCKET_NAME"]
+    access_key_id, secret_key, s3_bucket_name = get_secrets()
 
     app = S3TransformationApp(access_key_id, secret_key, s3_bucket_name)
 
