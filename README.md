@@ -58,7 +58,28 @@ Each of function has its own README file with an instruction how to install them
 1. Run scripts from `db_scripts`
 
 ### SPARK APPLICATION
-1. TO DO
+Use Amazon Elastic Container Service to run Spark Application. A cluster will be needed which will be using a docker image from Elastic Container Registry from AWS. After setting up cluster and container create a task. Remember about proper permissions - this application needs to have an access to:
+- AWS Secret Manager
+- S3
+
+1. Create a new repository in Amazon ECR:
+`aws ecr create-repository --repository-name <your-repository-name>`
+
+2. Authenticate your Docker client to your Amazon ECR registry:
+`aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws-id>.dkr.<region>.amazonaws.com`
+
+3. Build your docker image
+`docker build -t spark_app:latest -f ./docker/Dockerfile .`
+
+4. Tag your docker image accordingly to your repo
+`docker tag spark_app:latest <aws-id>.dkr.ecr.<region>.amazonaws.com/<image/repo_name>`
+
+5. Push your docker image to your repo
+`docker push <aws-id>.dkr.ecr.<region>.amazonaws.com/<image/repo_name>`
+
+
+### AWS STEP FUNCTIONS
+# TO DO
 
 
 ### CONCLUSIONS:
