@@ -7,10 +7,11 @@ This is a data-driven application that retrieves, stores, analyzes, and visualiz
 ## Main Components:
 Main components:
 1. AWS Lambda 
-2. Python script
+2. Python scripts for Lambdas
 3. Snowflake (Stored Procedures, Tasks, Stages, Streams)
 4. AWS S3
 5. AWS Secret Manager 
+6. Spark app in Docker
 
 ### 1. Data Acquisition 
 
@@ -40,45 +41,24 @@ Snowflakes DWH consist of two schemas (STG_DWH for staging data and CORE_DWH as 
 #### Spark Application
 This application reads data from `RAW` location in S3. Do necessary transformations and returns a final data to `DATA` in S3. It obtaines secrets from AWS Secrets Manager and runs from Docker container.
 
-
-### TO DO:
-Data Automation
-
-Data Visualization
-
-Alerts
+#### Data Visualization
+#TO DO
 
 
 ## How to run?
 
 ### AWS LAMBDA
-In AWS Lambda following function is used:
+In AWS Lambda following functions are used:
 - FetchHouseStockWatcher
+- SaveFetchDate
 
-This function fetches aggregated data about all transactions from `https://senate-stock-watcher-data.s3-us-west-2.amazonaws.com`
-
-#### Installation
-1. Zip needed libraries
-`zip -r ../deployment_package.zip .`
-
-2. Zip zipped libs with function itself
-`zip -g deployment_package.zip FetchHouseStockWatcher.py`
-
-3. Upload it to AWS Lambda. Remember to adjust Handler:
-`<NameOfScript>.<NameOfMainFunction>`
-
-4. Add environmental variables to AWS Lambda: 
-`S3_BUCKET_NAME`
-`STOCK_WATCHER_API_URL`
-
-5. This script for AWS Lambda needs proper permissions to be able to save file in S3
-
-6. Setup a trigger / frequence to fetch data by AWS Lambda function.
+Each of function has its own README file with an instruction how to install them.
 
 ### SNOWFLAKE
-1. Run scripts in `db_scripts`
+1. Run scripts from `db_scripts`
 
-
+### SPARK APPLICATION
+1. TO DO
 
 
 ### CONCLUSIONS:
