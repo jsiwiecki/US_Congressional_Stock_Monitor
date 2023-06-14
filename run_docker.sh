@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker build -t s3 -f docker/Dockerfile . && \
+docker build -t s3 -f Docker/Dockerfile . && \
 
 docker run -p 4040:4040 \
            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \

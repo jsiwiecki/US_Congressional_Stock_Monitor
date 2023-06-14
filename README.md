@@ -5,12 +5,13 @@
 This is a data-driven application that retrieves, stores, analyzes, and visualizes U.S. Congress members' stock transactions, enabling users to see the trading habits of lawmakers and possibly uncover insightful patterns.
 
 ## Main Components:
-This project is build based on servesless architecture. Main components:
+Main components:
 1. AWS Lambda 
-2. Python script
+2. Python scripts for Lambdas
 3. Snowflake (Stored Procedures, Tasks, Stages, Streams)
 4. AWS S3
 5. AWS Secret Manager 
+6. Spark app in Docker
 
 ### 1. Data Acquisition 
 
@@ -40,48 +41,49 @@ Snowflakes DWH consist of two schemas (STG_DWH for staging data and CORE_DWH as 
 #### Spark Application
 This application reads data from `RAW` location in S3. Do necessary transformations and returns a final data to `DATA` in S3. It obtaines secrets from AWS Secrets Manager and runs from Docker container.
 
-
-### TO DO:
-Data Automation
-
-Data Visualization
-
-Alerts
+#### Data Visualization
+#TO DO
 
 
 ## How to run?
 
 ### AWS LAMBDA
-In AWS Lambda following function is used:
+In AWS Lambda following functions are used:
 - FetchHouseStockWatcher
+- SaveFetchDate
 
-This function fetches aggregated data about all transactions from `https://senate-stock-watcher-data.s3-us-west-2.amazonaws.com`
-
-#### Installation
-1. Zip needed libraries
-`zip -r ../deployment_package.zip .`
-
-2. Zip zipped libs with function itself
-`zip -g deployment_package.zip FetchHouseStockWatcher.py`
-
-3. Upload it to AWS Lambda. Remember to adjust Handler:
-`<NameOfScript>.<NameOfMainFunction>`
-
-4. Add environmental variables to AWS Lambda: 
-`S3_BUCKET_NAME`
-`STOCK_WATCHER_API_URL`
-
-5. This script for AWS Lambda needs proper permissions to be able to save file in S3
-
-6. Setup a trigger / frequence to fetch data by AWS Lambda function.
+Each of function has its own README file with an instruction how to install them.
 
 ### SNOWFLAKE
-1. Run scripts in `db_scripts`
+1. Run scripts from `db_scripts`
+
+### SPARK APPLICATION
+Use Amazon Elastic Container Service to run Spark Application. A cluster will be needed which will be using a docker image from Elastic Container Registry from AWS. After setting up cluster and container create a task. Remember about proper permissions - this application needs to have an access to:
+- AWS Secret Manager
+- S3
+
+1. Create a new repository in Amazon ECR:
+`aws ecr create-repository --repository-name <your-repository-name>`
+
+2. Authenticate your Docker client to your Amazon ECR registry:
+`aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws-id>.dkr.<region>.amazonaws.com`
+
+3. Build your docker image
+`docker build -t spark_app:latest -f ./docker/Dockerfile .`
+
+4. Tag your docker image accordingly to your repo
+`docker tag spark_app:latest <aws-id>.dkr.ecr.<region>.amazonaws.com/<image/repo_name>`
+
+5. Push your docker image to your repo
+`docker push <aws-id>.dkr.ecr.<region>.amazonaws.com/<image/repo_name>`
 
 
+### AWS STEP FUNCTIONS
+# TO DO
 
 
-### CONCLUSIONS:
+### RETROSPECTIVE:
 - The whole structure of ETL can be better planned. Probably all the transformations can be done in Spark application which could eventually save data to Snowflake tables with CORE_DWH schema. However, this project was done with a priority to get to know as much tools as possible at once. With that purpose in mind this project was successfull.
 - SaveFetchDate function is pointless from a bigger perspective. It could be an element of another Lambda Function or a part of a Spark application. However, it was extremely tempting to create an AWS Lambda function with its docker container as its runtime. Again, taking into consideration this point of perspective, project was successfull. However, from architectural, usability and many more perspectives it was completely pointless.
 - The whole Spark application could be written with in mind Design Pattern like Fasade and Strategy. It would need to be investigated.
+- Weight of docker images should be inspect and improved to meet it more lightweight.
