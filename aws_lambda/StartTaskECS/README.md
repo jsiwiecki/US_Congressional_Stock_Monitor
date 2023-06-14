@@ -10,7 +10,7 @@ This function triggers a Spark Application in AWS ECS.
 `zip -r ../deployment_package.zip .`
 
 2. Zip zipped libs with function itself
-`zip -g deployment_package.zip FetchHouseStockWatcher.py`
+`zip -g deployment_package.zip StartTaskECS.py`
 
 3. Upload it to AWS Lambda. Remember to adjust Handler:
 `<NameOfScript>.<NameOfMainFunction>`
