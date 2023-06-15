@@ -44,13 +44,13 @@ $$
       state
     )
     SELECT DISTINCT
-      s.senator,
-      s.party,
-      s.state
+      s.SENATOR,
+      s.PARTY,
+      s.STATE
     FROM
       STG_DWH.ALL_DATA AS s
       LEFT JOIN STG_DWH.STG_DIM_SENATOR AS d
-        ON s.senator = d.senator_name
+        ON s.SENATOR = d.SENATOR_NAME
     WHERE
       d.senator_id IS NULL;
   `;
@@ -121,7 +121,7 @@ $$
       d_sen.senator_id,
       d_ind.industry_id
     FROM
-      STG_DWH.STG_FACT_TRANSACTIONS AS s
+      STG_DWH.ALL_DATA AS s
       INNER JOIN STG_DWH.STG_DIM_SENATOR AS d_sen ON s.senator = d_sen.senator_name
       INNER JOIN STG_DWH.STG_DIM_INDUSTRY AS d_ind ON s.industry = d_ind.industry_name AND s.sector = d_ind.sector;
   `;
