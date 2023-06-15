@@ -1,34 +1,34 @@
 use schema CORE_DWH;
 
 // Refreshes external table, nothing more
-CREATE OR REPLACE PROCEDURE REFRESH_EXT_TABLE()
+CREATE OR REPLACE PROCEDURE refresh_ext_table_transformed()
 RETURNS STRING
 LANGUAGE JAVASCRIPT
 EXECUTE AS CALLER
 AS
 $$
-    var sql_command = "ALTER EXTERNAL TABLE THORGAL.STG_DWH.EXT_RAW_DATA REFRESH"
+    var sql_command = "ALTER EXTERNAL TABLE THORGAL.STG_DWH.EXT_DATA REFRESH"
 
     var statement = snowflake.createStatement({sqlText: sql_command});
     statement.execute();
-    return "External table CORE_DWH.EXT_RAW_DATA refreshed successfully!"
+    return "External table CORE_DWH.EXT_DATA refreshed successfully!"
 $$;
 
-CREATE OR REPLACE PROCEDURE copy_EXT_DATA_RAW()
+CREATE OR REPLACE PROCEDURE copy_EXT_STG()
 RETURNS STRING
 LANGUAGE JAVASCRIPT
 EXECUTE AS CALLER
 AS
 $$
-    var sql_command = "INSERT INTO STG_DWH.RAW_DATA (transaction_date, owner, ticker, asset_description, asset_type, type, amount, comment, party, state, industry, sector, senator, ptr_link, disclosure_date)" +
+    var sql_command = "INSERT INTO STG_DWH.ALL_DATA (transaction_date, owner, ticker, asset_description, asset_type, type, amount, comment, party, state, industry, sector, senator, ptr_link, disclosure_date)" +
         "SELECT $1:transaction_date::DATE, $1:owner::STRING, $1:ticker::STRING, $1:asset_description::STRING, $1:asset_type::STRING, $1:type::STRING," +
         "$1:amount::STRING, $1:comment::STRING, $1:party::STRING, $1:state::STRING, $1:industry::STRING, $1:sector::STRING, $1:senator::STRING," +
         "$1:ptr_link::STRING, $1:disclosure_date::DATE " +
-        "FROM STG_DWH.EXT_RAW_DATA;"
+        "FROM STG_DWH.EXT_DATA;"
 
     var statement = snowflake.createStatement({sqlText: sql_command});
     statement.execute();
-    return "Data from EXTERNAL table with RAW data copied to STG_DWH.RAW_DATA successfully!";
+    return "Data from EXTERNAL table from STG_DWH.EXT_DATA copied to STG_DWH.ALL_DATA successfully!";
 $$;
 
 
@@ -48,7 +48,7 @@ $$
       s.party,
       s.state
     FROM
-      STG_DWH.RAW_DATA AS s
+      STG_DWH.ALL_DATA AS s
       LEFT JOIN STG_DWH.STG_DIM_SENATOR AS d
         ON s.senator = d.senator_name
     WHERE
@@ -60,7 +60,7 @@ $$
 $$;
 
 
-CREATE OR REPLACE PROCEDURE insert_new_industries()
+CREATE OR REPLACE PROCEDURE STG_insert_new_industries()
   RETURNS STRING
   LANGUAGE JAVASCRIPT
 AS
@@ -74,7 +74,7 @@ $$
       s.industry,
       s.sector
     FROM
-      STG_DWH.RAW_DATA AS s
+      STG_DWH.ALL_DATA AS s
       LEFT JOIN STG_DWH.STG_DIM_INDUSTRY AS d
         ON s.industry = d.industry_name
         AND s.sector = d.sector
@@ -140,11 +140,11 @@ LANGUAGE JAVASCRIPT
 EXECUTE AS CALLER
 AS
 $$
-    var sql_command = "DELETE FROM STG_DWH.RAW_DATA"
+    var sql_command = "DELETE FROM STG_DWH.ALL_DATA"
 
     var statement = snowflake.createStatement({sqlText: sql_command});
     statement.execute();
-    return "Data from STG_DWH.RAW_DATA cleaned successfully!"
+    return "Data from STG_DWH.ALL_DATA cleaned successfully!"
 $$;
 
 
@@ -155,20 +155,12 @@ CREATE OR REPLACE PROCEDURE orchestrate_process()
   LANGUAGE JAVASCRIPT
 AS
 $$
-  snowflake.execute({ sqlText: "CALL refresh_ext_table();" });
-  snowflake.execute({ sqlText: "CALL COPY_RAW_DATA();" });
-  snowflake.execute({ sqlText: "CALL RAW_FINAL_CHECK_COPY();" });
+  snowflake.execute({ sqlText: "CALL refresh_ext_table_transformed();" });
+  snowflake.execute({ sqlText: "CALL copy_EXT_STG();" });
+  snowflake.execute({ sqlText: "CALL STG_insert_new_senators();" });
+  snowflake.execute({ sqlText: "CALL STG_insert_new_industries();" });
+  snowflake.execute({ sqlText: "CALL STG_insert_transactions();" });
+  snowflake.execute({ sqlText: "CALL STG_DWH.ALL_DATA();" });
   snowflake.execute({ sqlText: "CALL clean_INGEST();" });
-  return 'Three stored procedures completed successfully.';
+  return 'All stored procedures completed successfully.';
 $$;
-
-
-// Task that runs every day at midnight
-CREATE TASK daily_task_for_stored_procedures
-  WAREHOUSE = 'COMPUTE_WH'
-  SCHEDULE = 'USING CRON 0 0 * * * UTC'
-AS
-  CALL orchestrate_process();
-
-ALTER TASK daily_task_for_stored_procedures RESUME;
-
