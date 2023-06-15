@@ -1,7 +1,6 @@
 import snowflake.connector
 import os
 
-
 def lambda_handler(event, context):
 
     SNOWFLAKE_ACCOUNT = os.getenv("SNOWFLAKE_ACCOUNT")
@@ -11,7 +10,6 @@ def lambda_handler(event, context):
     SNOWFLAKE_DATABASE = os.getenv("SNOWFLAKE_DATABASE")
     SNOWFLAKE_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA")
     ROLE_NAME = os.getenv("SNOWFLAKE_ROLE")
-
 
     ctx = snowflake.connector.connect(
         account=SNOWFLAKE_ACCOUNT,
@@ -24,11 +22,13 @@ def lambda_handler(event, context):
 
     cur = ctx.cursor()
 
-    try:
-        cur.callproc("orchestrate_process")
-        print("Stored procedure executed successfully.")
-    except Exception as e:
-        print("An error occurred:", e)
-    finally:
-        cur.close()
-        ctx.close()
+    cur.callproc("orchestrate_process")
+    print("Stored procedure executed successfully.")
+
+    cur.close()
+    ctx.close()
+
+    return {
+        "statusCode": 200,
+        "body": "Stored procedure executed successfully."
+    }
