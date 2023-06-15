@@ -11,7 +11,7 @@ type = external_stage
 storage_provider= 'S3'
 enabled=true
 storage_aws_role_arn='arn:aws:iam::<YOUR_IAM>:role/<YOUR_ROLE>'
-storage_allowed_locations=('s3://<NAME_OF_YOUR_BUCKET>/');
+storage_allowed_locations=('s3://snowflakelabbucket/');
 
 // File format for JSON
 create or replace file format my_json_format
@@ -22,10 +22,10 @@ STRIP_OUTER_ARRAY = TRUE;
 create or replace stage s3_raw_data
 storage_integration = aws_s3_integration
 file_format = my_json_format
-url = 's3://<NAME_OF_YOUR_BUCKET>/raw';
+url = 's3://snowflakelabbucket/raw';
 
 // Stage for Transformed data in S3
 create or replace stage s3_transformed
 storage_integration = aws_s3_integration
 file_format = my_json_format
-url = 's3://<NAME_OF_YOUR_BUCKET>/data';
+url = 's3://snowflakelabbucket/data';
