@@ -10,10 +10,10 @@ To speed up process, following steps are in `Docker_Lambda_function_prep.sh`.
 Just necessary details are needed to be added there (like AWS ID etc.). Or you can do it manually following the steps:
 
 1. Create docker image
-`docker build -t savefetchdate:latest -f ./Docker/Dockerfile .`
+`docker build -t startsnowflake:latest -f ./Docker/Dockerfile .`
 
 2. Tag the image
-`docker tag <image> <aws_id>.dkr.ecr.<region>.amazonaws.com/<image>`
+`docker tag startsnowflake <aws_id>.dkr.ecr.<region>.amazonaws.com/start_snowflake`
 
 3. Use AWS CLI (if needed, isntall it)
 

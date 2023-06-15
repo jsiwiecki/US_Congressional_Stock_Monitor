@@ -160,7 +160,6 @@ $$
   snowflake.execute({ sqlText: "CALL STG_insert_new_senators();" });
   snowflake.execute({ sqlText: "CALL STG_insert_new_industries();" });
   snowflake.execute({ sqlText: "CALL STG_insert_transactions();" });
-  snowflake.execute({ sqlText: "CALL STG_DWH.ALL_DATA();" });
   snowflake.execute({ sqlText: "CALL clean_INGEST();" });
   return 'All stored procedures completed successfully.';
 $$;
