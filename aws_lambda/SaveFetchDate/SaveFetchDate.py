@@ -70,4 +70,3 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": "Table updated with current fetching date"
     }
-    
