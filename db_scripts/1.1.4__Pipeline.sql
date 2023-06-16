@@ -14,21 +14,55 @@ $$
     return "External table CORE_DWH.EXT_DATA refreshed successfully!"
 $$;
 
-CREATE OR REPLACE PROCEDURE copy_EXT_STG()
+CREATE OR REPLACE PROCEDURE COPY_EXT_STG()
 RETURNS STRING
 LANGUAGE JAVASCRIPT
 EXECUTE AS CALLER
 AS
 $$
-    var sql_command = "INSERT INTO STG_DWH.ALL_DATA (transaction_date, owner, ticker, asset_description, asset_type, type, amount, comment, party, state, industry, sector, senator, ptr_link, disclosure_date)" +
-        "SELECT $1:transaction_date::DATE, $1:owner::STRING, $1:ticker::STRING, $1:asset_description::STRING, $1:asset_type::STRING, $1:type::STRING," +
-        "$1:amount::STRING, $1:comment::STRING, $1:party::STRING, $1:state::STRING, $1:industry::STRING, $1:sector::STRING, $1:senator::STRING," +
-        "$1:ptr_link::STRING, $1:disclosure_date::DATE " +
-        "FROM STG_DWH.EXT_DATA;"
+    var sql_command =
+        "INSERT INTO STG_DWH.ALL_DATA (transaction_date, owner, ticker, asset_description, asset_type, type, amount, comment, party, state, industry, sector, senator, ptr_link, disclosure_date) " +
+        "SELECT ext.transaction_date, ext.owner, ext.ticker, ext.asset_description, ext.asset_type, ext.type, ext.amount, ext.comment, ext.party, ext.state, ext.industry, ext.sector, ext.senator, ext.ptr_link, ext.disclosure_date " +
+        "FROM (" +
+            "SELECT " +
+            "$1:transaction_date::DATE AS transaction_date, " +
+            "$1:owner::STRING AS owner, " +
+            "$1:ticker::STRING AS ticker, " +
+            "$1:asset_description::STRING AS asset_description, " +
+            "$1:asset_type::STRING AS asset_type, " +
+            "$1:type::STRING AS type, " +
+            "$1:amount::STRING AS amount, " +
+            "$1:comment::STRING AS comment, " +
+            "$1:party::STRING AS party, " +
+            "$1:state::STRING AS state, " +
+            "$1:industry::STRING AS industry, " +
+            "$1:sector::STRING AS sector, " +
+            "$1:senator::STRING AS senator, " +
+            "$1:ptr_link::STRING AS ptr_link, " +
+            "$1:disclosure_date::DATE AS disclosure_date " +
+        "FROM STG_DWH.EXT_DATA " +
+        ") AS ext " +
+        "LEFT JOIN STG_DWH.ALL_DATA AS e " +
+        "ON ext.transaction_date = e.transaction_date " +
+        "AND ext.owner = e.owner " +
+        "AND ext.ticker = e.ticker " +
+        "AND ext.asset_description = e.asset_description " +
+        "AND ext.asset_type = e.asset_type " +
+        "AND ext.type = e.type " +
+        "AND ext.amount = e.amount " +
+        "AND ext.comment = e.comment " +
+        "AND ext.party = e.party " +
+        "AND ext.state = e.state " +
+        "AND ext.industry = e.industry " +
+        "AND ext.sector = e.sector " +
+        "AND ext.senator = e.senator " +
+        "AND ext.ptr_link = e.ptr_link " +
+        "AND ext.disclosure_date = e.disclosure_date " +
+        "WHERE e.transaction_date IS NULL;";
 
     var statement = snowflake.createStatement({sqlText: sql_command});
     statement.execute();
-    return "Data from EXTERNAL table from STG_DWH.EXT_DATA copied to STG_DWH.ALL_DATA successfully!";
+    return "Data from STG_DWH.EXT_DATA table copied to STG_DWH.ALL_DATA successfully!";
 $$;
 
 
