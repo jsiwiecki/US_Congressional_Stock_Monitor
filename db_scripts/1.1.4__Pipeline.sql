@@ -77,16 +77,12 @@ $$
       party,
       state
     )
-    SELECT DISTINCT
+    SELECT
       s.SENATOR,
       s.PARTY,
       s.STATE
     FROM
-      STG_DWH.ALL_DATA AS s
-      LEFT JOIN STG_DWH.STG_DIM_SENATOR AS d
-        ON s.SENATOR = d.SENATOR_NAME
-    WHERE
-      d.senator_id IS NULL;
+      STG_DWH.ALL_DATA AS s;
   `;
 
   snowflake.execute({ sqlText: insert_new_senators_sql });
@@ -104,16 +100,11 @@ $$
       industry_name,
       sector
     )
-    SELECT DISTINCT
+    SELECT
       s.industry,
       s.sector
     FROM
-      STG_DWH.ALL_DATA AS s
-      LEFT JOIN STG_DWH.STG_DIM_INDUSTRY AS d
-        ON s.industry = d.industry_name
-        AND s.sector = d.sector
-    WHERE
-      d.industry_id IS NULL;
+      STG_DWH.ALL_DATA AS s;
   `;
 
   snowflake.execute({ sqlText: insert_new_industries_sql });
@@ -165,22 +156,51 @@ $$
 $$;
 
 
-
-
-
-CREATE OR REPLACE PROCEDURE clean_INGEST()
-RETURNS STRING
-LANGUAGE JAVASCRIPT
-EXECUTE AS CALLER
+CREATE OR REPLACE PROCEDURE senator_STG_DWH()
+  RETURNS STRING
+  LANGUAGE JAVASCRIPT
 AS
 $$
-    var sql_command = "DELETE FROM STG_DWH.ALL_DATA"
+  var insert_senators_sql = `
+    INSERT INTO CORE_DWH.DIM_SENATOR (
+      senator_name,
+      party,
+      state
+    )
+    SELECT
+      s.SENATOR_NAME,
+      s.PARTY,
+      s.STATE
+    FROM
+      STG_DWH.STG_DIM_SENATOR s;
+  `;
 
-    var statement = snowflake.createStatement({sqlText: sql_command});
-    statement.execute();
-    return "Data from STG_DWH.ALL_DATA cleaned successfully!"
+  snowflake.execute({ sqlText: insert_senators_sql });
+  return 'STG copied to CORE_DWH.';
 $$;
 
+
+CREATE OR REPLACE PROCEDURE industry_STG_DWH()
+  RETURNS STRING
+  LANGUAGE JAVASCRIPT
+AS
+$$
+  var insert_senators_sql = `
+    INSERT INTO CORE_DWH.DIM_INDUSTRY (
+      industry_name,
+      sector
+    )
+    SELECT DISTINCT
+      s.industry_name,
+      s.sector
+    FROM
+      STG_DWH.STG_DIM_INDUSTRY AS s
+      ;
+  `;
+
+  snowflake.execute({ sqlText: insert_senators_sql });
+  return 'STG_DIM_INDUSTRY copied to CORE_DWH.DIM_INDUSTRY.';
+$$;
 
 
 // One procedure to orchestrate
@@ -194,6 +214,7 @@ $$
   snowflake.execute({ sqlText: "CALL STG_insert_new_senators();" });
   snowflake.execute({ sqlText: "CALL STG_insert_new_industries();" });
   snowflake.execute({ sqlText: "CALL STG_insert_transactions();" });
-  snowflake.execute({ sqlText: "CALL clean_INGEST();" });
+  snowflake.execute({ sqlText: "CALL senator_STG_DWH();" });
+  snowflake.execute({ sqlText: "CALL industry_STG_DWH();" });
   return 'All stored procedures completed successfully.';
 $$;
