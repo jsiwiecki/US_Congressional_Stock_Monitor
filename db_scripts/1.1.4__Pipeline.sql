@@ -14,6 +14,52 @@ $$
     return "External table CORE_DWH.EXT_DATA refreshed successfully!"
 $$;
 
+
+// Clean STG_SENATORS
+CREATE OR REPLACE PROCEDURE clean_STG_senators()
+RETURNS STRING
+LANGUAGE JAVASCRIPT
+EXECUTE AS CALLER
+AS
+$$
+    var sql_command = "DELETE FROM THORGAL.STG_DWH.STG_DIM_SENATOR"
+
+    var statement = snowflake.createStatement({sqlText: sql_command});
+    statement.execute();
+    return "STG_DIM_SENATOR cleaned successfully!"
+$$;
+
+
+// Clean STG_DIM_INDUSTRY
+CREATE OR REPLACE PROCEDURE clean_STG_industries()
+RETURNS STRING
+LANGUAGE JAVASCRIPT
+EXECUTE AS CALLER
+AS
+$$
+    var sql_command = "DELETE FROM THORGAL.STG_DWH.STG_DIM_INDUSTRY"
+
+    var statement = snowflake.createStatement({sqlText: sql_command});
+    statement.execute();
+    return "STG_DIM_INDUSTRY cleaned successfully!"
+$$;
+
+
+// Clean STG_FACT_TRANSACTIONS
+CREATE OR REPLACE PROCEDURE clean_STG_transactions()
+RETURNS STRING
+LANGUAGE JAVASCRIPT
+EXECUTE AS CALLER
+AS
+$$
+    var sql_command = "DELETE FROM THORGAL.STG_DWH.STG_FACT_TRANSACTIONS"
+
+    var statement = snowflake.createStatement({sqlText: sql_command});
+    statement.execute();
+    return "STG_FACT_TRANSACTIONS cleaned successfully!"
+$$;
+
+
 CREATE OR REPLACE PROCEDURE COPY_EXT_STG()
 RETURNS STRING
 LANGUAGE JAVASCRIPT
@@ -203,6 +249,55 @@ $$
 $$;
 
 
+CREATE OR REPLACE PROCEDURE transactions_STG_DWH()
+  RETURNS STRING
+  LANGUAGE JAVASCRIPT
+AS
+$$
+  var insert_senators_sql = `
+        INSERT INTO CORE_DWH.FACT_TRANSACTIONS (
+          transaction_date, 
+          owner, 
+          ticker, 
+          asset_description, 
+          asset_type, 
+          type, 
+          amount, 
+          comment, 
+          party, 
+          state, 
+          industry, 
+          sector, 
+          senator, 
+          ptr_link, 
+          disclosure_date
+        )
+        SELECT 
+          st.transaction_date, 
+          st.owner, 
+          st.ticker, 
+          st.asset_description, 
+          st.asset_type, 
+          st.type, 
+          st.amount, 
+          st.comment, 
+          st.party, 
+          st.state, 
+          st.industry, 
+          st.sector, 
+          st.senator, 
+          st.ptr_link, 
+          st.disclosure_date
+        FROM
+          THORGAL.STG_DWH.STG_FACT_TRANSACTIONS
+      ;
+  `;
+
+  snowflake.execute({ sqlText: insert_senators_sql });
+  return 'STG_DWH.STG_FACT_TRANSACTIONS copied to CORE_DWH.FACT_TRANSACTIONS.';
+$$;
+
+
 // One procedure to orchestrate
 CREATE OR REPLACE PROCEDURE orchestrate_process()
   RETURNS STRING
@@ -210,11 +305,15 @@ CREATE OR REPLACE PROCEDURE orchestrate_process()
 AS
 $$
   snowflake.execute({ sqlText: "CALL refresh_ext_table_transformed();" });
+  snowflake.execute({ sqlText: "CALL clean_STG_senators();" });
+  snowflake.execute({ sqlText: "CALL clean_STG_industries();" });
+  snowflake.execute({ sqlText: "CALL clean_STG_transactions();" });
   snowflake.execute({ sqlText: "CALL copy_EXT_STG();" });
   snowflake.execute({ sqlText: "CALL STG_insert_new_senators();" });
   snowflake.execute({ sqlText: "CALL STG_insert_new_industries();" });
   snowflake.execute({ sqlText: "CALL STG_insert_transactions();" });
   snowflake.execute({ sqlText: "CALL senator_STG_DWH();" });
   snowflake.execute({ sqlText: "CALL industry_STG_DWH();" });
+  snowflake.execute({ sqlText: "CALL transactions_STG_DWH();" });
   return 'All stored procedures completed successfully.';
 $$;
