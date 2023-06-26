@@ -2,13 +2,14 @@
 
 ## Project Description:
 
-This is a data-driven application that retrieves, stores, analyzes, and visualizes U.S. Congress members' stock transactions, enabling users to see the trading habits of lawmakers and possibly uncover insightful patterns.
+This is a data-driven application that retrieves, stores and transforms U.S. Congress members' stock transactions.
+In the future probably a visualisation layer will be added. This way, it'll enable users to see the trading habits of lawmakers and possibly uncover insightful patterns.
 
 ## Main Components:
 Main components:
 1. AWS Lambda 
 2. Python scripts for Lambdas
-3. Snowflake (Stored Procedures, Tasks, Stages, Streams)
+3. Snowflake (DB, Tables, Stored Procedures, Stages)
 4. AWS S3
 5. AWS Secret Manager 
 6. Spark app in Docker
@@ -41,23 +42,19 @@ Snowflakes DWH consist of two schemas (STG_DWH for staging data and CORE_DWH as 
 #### Spark Application
 This application reads data from `RAW` location in S3. Do necessary transformations and returns a final data to `DATA` in S3. It obtaines secrets from AWS Secrets Manager and runs from Docker container.
 
-#### Data Visualization
-#TO DO
-
-
 ## How to run?
 
 ### AWS LAMBDA
 In AWS Lambda following functions are used:
 - FetchHouseStockWatcher
 - SaveFetchDate
-- TriggerSparkApp
-- TriggerSnowflake
+- StartTaskECS
+- StartSnowflake
 
 Each of function has its own README file with an instruction how to install them.
 
 ### SNOWFLAKE
-1. Run scripts from `db_scripts`
+1. Run scripts from `db_scripts`. It setup the whole DB with ready to use Stored Procedures.
 
 ### SPARK APPLICATION
 Use Amazon Elastic Container Service with Fargate to run Spark Application. A cluster will be needed which will be using a docker image from Elastic Container Registry from AWS. After setting up cluster and container create a task. Remember about proper permissions - this application needs to have an access to:
@@ -79,10 +76,8 @@ Use Amazon Elastic Container Service with Fargate to run Spark Application. A cl
 5. Push your docker image to your repo
 `docker push <aws-id>.dkr.ecr.<region>.amazonaws.com/<image/repo_name>`
 
-
-### AWS STEP FUNCTIONS
-# TO DO
-
+### TO DO:
+Step functions to orchestrate all.
 
 ### RETROSPECTIVE:
 - The whole structure of ETL can be better planned. Probably all the transformations can be done in Spark application which could eventually save data to Snowflake tables with CORE_DWH schema. However, this project was done with a priority to get to know as much tools as possible at once. With that purpose in mind this project was successfull.

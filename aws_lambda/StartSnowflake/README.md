@@ -1,5 +1,5 @@
 # StartSnowflake
-This function triggers a Snowflake Stored Procedure.
+This function triggers a Snowflake Stored Procedures.
 
 ## Docker
 Due to issues with libraries in AWS Lambda function runtime with one of libraries, it was necessary to use a docker which will act as a runtime for AWS Lambda function. Remember about:
