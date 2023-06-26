@@ -256,40 +256,34 @@ AS
 $$
   var insert_senators_sql = `
         INSERT INTO CORE_DWH.FACT_TRANSACTIONS (
-          transaction_date, 
-          owner, 
-          ticker, 
-          asset_description, 
-          asset_type, 
-          type, 
-          amount, 
-          comment, 
-          party, 
-          state, 
-          industry, 
-          sector, 
-          senator, 
-          ptr_link, 
+          transaction_date,
+          owner,
+          ticker,
+          asset_description,
+          asset_type,
+          type,
+          amount,
+          comment,
+          industry_id,
+          senator_id,
+          ptr_link,
           disclosure_date
         )
         SELECT 
-          st.transaction_date, 
-          st.owner, 
-          st.ticker, 
-          st.asset_description, 
-          st.asset_type, 
-          st.type, 
-          st.amount, 
-          st.comment, 
-          st.party, 
-          st.state, 
-          st.industry, 
-          st.sector, 
-          st.senator, 
-          st.ptr_link, 
+          st.transaction_date,
+          st.owner,
+          st.ticker,
+          st.asset_description,
+          st.asset_type,
+          st.type,
+          st.amount,
+          st.comment,
+          st.industry_id,
+          st.senator_id,
+          st.ptr_link,
           st.disclosure_date
         FROM
-          THORGAL.STG_DWH.STG_FACT_TRANSACTIONS
+          THORGAL.STG_DWH.STG_FACT_TRANSACTIONS as st
       ;
   `;
 

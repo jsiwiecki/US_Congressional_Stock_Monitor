@@ -4,7 +4,11 @@ import boto3
 from datetime import datetime
 from botocore.exceptions import ClientError
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import unix_timestamp, from_unixtime, col, when, expr
+from pyspark.sql.functions import unix_timestamp, from_unixtime, col, when, expr, monotonically_increasing_id
+from typing import Dict
+from sqlalchemy import create_engine, Column, Integer, Table
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import select
 
 from schema import INPUT_SCHEMA
 from constraints import DATES_TO_TRANSFORM, NULL_VAL_MAPPINGS
@@ -29,7 +33,6 @@ class S3TransformationApp:
         self.secret_key = secret_key
         self.s3_bucket_name = s3_bucket_name
         self.spark = self.setup_spark_session()
-
 
     def setup_spark_session(self) -> SparkSession:
         """
@@ -67,6 +70,63 @@ class S3TransformationApp:
         """
         s3_input_path = f"s3a://{self.s3_bucket_name}/{filepath}"
         return self.spark.read.json(s3_input_path, schema=schema)
+
+    def add_unique_id(self, df: DataFrame) -> DataFrame:
+        dataframe = df.withColumn("row_id", monotonically_increasing_id())
+
+        return dataframe
+
+    def check_current_no_rows(self, df: DataFrame) -> DataFrame:
+        row_count = df.count()
+
+        return row_count
+
+    def compare_no_rows(self, df: DataFrame, last_no_rows, current_no_rows) -> DataFrame:
+        pass
+
+    def get_snowflake_conf(self):
+
+        user = os.getenv("SNOWFLAKE_USER")
+        password = os.getenv("SNOWFLAKE_PASSWORD")
+        account_identifier = os.getenv("SNOWFLAKE_ACCOUNT")
+        database_name = os.getenv("SNOWFLAKE_DATABASE")
+        schema_name = os.getenv("SNOWFLAKE_SCHEMA")
+        role_name = os.getenv("SNOWFLAKE_ROLE")
+        warehouse_name = os.getenv("SNOWFLAKE_WAREHOUSE")
+
+        snowflake_config = {
+        "user": user,
+        "password": password,
+        "account": account_identifier,
+        "warehouse": warehouse_name,
+        "database": database_name,
+        "schema": schema_name,
+        "role": role_name
+    }
+        return snowflake_config
+
+    def get_latest_number(self, snowflake_config: Dict[str, str]) -> int:
+        conn_string = (
+            "snowflake://{user}:{password}@{account}.snowflakecomputing.com/?"
+            "warehouse={warehouse}&"
+            "database={database}&"
+            "schema={schema}&"
+            "role={role}"
+        ).format(**snowflake_config)
+
+        engine = create_engine(conn_string)
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        fetch_history = Table("FETCH_HISTORY", Column("NO_ROWS", Integer), Column("FETCH_ID", Integer))
+
+        query = select([fetch_history.c.NO_ROWS]).order_by(fetch_history.c.FETCH_ID.desc()).limit(1)
+
+        result = session.execute(query)
+        latest_number = result.scalar()
+
+        return latest_number
 
     def clean_nulls(self, df: DataFrame) -> DataFrame:
         """
@@ -123,6 +183,10 @@ class S3TransformationApp:
         raw_reading_path = self.results_filename_path_creator("raw")
 
         df = self.read_data_from_s3(INPUT_SCHEMA, raw_reading_path)
+        df = self.add_unique_id(df)
+
+        number = self.check_current_no_rows(df)
+
         transformed_df = self.clean_nulls(df)
         transformed_df = self.transform_date_format(DATES_TO_TRANSFORM, transformed_df)
 
